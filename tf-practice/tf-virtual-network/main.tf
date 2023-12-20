@@ -142,7 +142,7 @@ resource "azurerm_windows_virtual_machine" "appvm" {
   source_image_reference {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
-    sku       = "2023-Datacenter"
+    sku       = "2016-Datacenter"
     version   = "latest"
   }
   depends_on = [
@@ -167,4 +167,23 @@ resource "azurerm_network_interface" "secondaryinterface" {
   depends_on = [
     azurerm_subnet.subnetA
   ]
+}
+
+#################################################################
+
+resource "azurerm_managed_disk" "appdisk" {
+  name                 = "appdisk"
+  location             = local.location
+  resource_group_name  = local.resource_group_name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "16"
+
+ }
+
+ resource "azurerm_virtual_machine_data_disk_attachment" "appdiskattach" {
+  managed_disk_id    = azurerm_managed_disk.appdisk.id
+  virtual_machine_id = azurerm_windows_virtual_machine.appvm.id
+  lun                = "0"
+  caching            = "ReadWrite"
 }
