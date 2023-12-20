@@ -15,7 +15,7 @@ provider "azurerm" {
     features {}
 }
 
-resource "azurerm_resource_group" "appgrp" {
+resource "azurerm_resource_group" "apprg" {
   name     = "app-rg"
   location = "eastus"
 }
@@ -27,7 +27,7 @@ resource "azurerm_storage_account" "appstorageaccunt001" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
   account_kind = "StorageV2"
-  depends_on = [ azurerm_resource_group.appgrp ]
+  depends_on = [ azurerm_resource_group.apprg ]
 
   tags = {
     environment = "test"

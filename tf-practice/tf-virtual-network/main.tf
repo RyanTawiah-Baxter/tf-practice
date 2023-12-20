@@ -1,5 +1,5 @@
 locals {
-  resource_group_name = "app-grp"
+  resource_group_name = "apprg"
   location = "eastus"
   admin_username = base64encode( "ryantawiah" )
   admin_password = base64encode( "TerraformLover123!" )
@@ -127,10 +127,11 @@ resource "azurerm_windows_virtual_machine" "appvm" {
   resource_group_name = local.resource_group_name
   location            = local.location
   size                = "Standard_D2S_v3"
-  admin_username      = local.admin_username
-  admin_password      = local.admin_password
+  admin_username      = "adminuser"
+  admin_password      = "Azure@123"
   network_interface_ids = [
     azurerm_network_interface.appinterface.id,
+    azurerm_network_interface.secondaryinterface.id
   ]
 
   os_disk {
@@ -146,6 +147,24 @@ resource "azurerm_windows_virtual_machine" "appvm" {
   }
   depends_on = [
     azurerm_network_interface.appinterface,
-    azurerm_resource_group.apprg
+    azurerm_resource_group.apprg,
+    azurerm_network_interface.secondaryinterface
+  ]
+}
+
+################################################################# 
+
+resource "azurerm_network_interface" "secondaryinterface" {
+  name                = "secondaryinterface"
+  location            = local.location
+  resource_group_name = local.resource_group_name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnetA.id
+    private_ip_address_allocation = "Dynamic"    
+  }
+  depends_on = [
+    azurerm_subnet.subnetA
   ]
 }
